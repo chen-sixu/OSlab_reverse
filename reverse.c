@@ -1,34 +1,73 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<sys/stat.h>
-
+#include <string.h>
 
 char** parse_input(FILE *input_file,int* line_cnt)
 {
-    char** text = (char**)malloc(sizeof(char*)*100);
-    if (text == NULL)
+    char **text = NULL;
+    size_t text_size = 0;
+    char *line = NULL;
+    ssize_t line_len;
+
+    while ((line_len = getline(&line, &text_size, input_file)) != -1) 
     {
-        fprintf(stderr, "malloc failed\n");
-        exit(1);
-    }
-    for (int i = 0; i < 100; i++)
-    {
-        text[i] = (char*)malloc(sizeof(char)*100);
-        if (text == NULL)
+        if (line[line_len - 1] == '\n') 
+        {
+            line[line_len - 1] = '\0';
+            line_len--;
+        }
+        text = (char**)realloc(text, sizeof(char*) * (*line_cnt+1));
+        if (text == NULL) 
         {
             fprintf(stderr, "malloc failed\n");
+            free(line);
             exit(1);
         }
+
+        text[*line_cnt] = strdup(line);
+        if (text[*line_cnt] == NULL) 
+        {
+            fprintf(stderr, "malloc failed\n");
+            for (int i = 0; i < *line_cnt; i++) 
+            {
+                free(text[i]);
+            }
+            free(text);
+            free(line);
+            exit(1);
+        }
+
+        (*line_cnt)++;
     }
-    int temp = 0;
-    while (fscanf(input_file,"%s",text[temp])!=-1)
-    {
-        temp++;
-    }
-    *line_cnt = temp;
-    if (line_cnt == 0)
-        exit(1);
+    free(line);
     return text;
+
+
+    // char** text = (char**)malloc(sizeof(char*)*100);
+    // if (text == NULL)
+    // {
+    //     fprintf(stderr, "malloc failed\n");
+    //     exit(1);
+    // }
+    // for (int i = 0; i < 100; i++)
+    // {
+    //     text[i] = (char*)malloc(sizeof(char)*100);
+    //     if (text == NULL)
+    //     {
+    //         fprintf(stderr, "malloc failed\n");
+    //         exit(1);
+    //     }
+    // }
+    // int temp = 0;
+    // while (fscanf(input_file,"%s",text[temp])!=-1)
+    // {
+    //     temp++;
+    // }
+    // *line_cnt = temp;
+    // if (line_cnt == 0)
+    //     exit(1);
+    // return text;
 }
 
 char** reverse_text(char** text, int line_count)
@@ -120,6 +159,4 @@ int main(int argc,char *argv[])
     output(output_file,reversed_text,line_cnt);
     fclose(input_file);
     fclose(output_file);
-    free(original_text);
-    free(reversed_text);
 }
