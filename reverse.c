@@ -116,5 +116,10 @@ int main(int argc,char *argv[])
     void output():write to command line or file
     */
     char** original_text = parse_input(input_file,&line_cnt);
-    output(output_file,reverse_text(original_text,line_cnt),line_cnt);
+    char** reversed_text = reverse_text(original_text,line_cnt);
+    output(output_file,reversed_text,line_cnt);
+    fclose(input_file);
+    fclose(output_file);
+    free(original_text);
+    free(reversed_text);
 }
