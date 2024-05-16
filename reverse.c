@@ -1,18 +1,56 @@
 #include<stdio.h>
-#include <cstdlib>
+#include<stdlib.h>
 #include<sys/stat.h>
 
-char** reverse_text()
-{
 
+char** parse_input(FILE *input_file,int* line_cnt)
+{
+    char** text = (char**)malloc(sizeof(char*)*100);
+    if (text == NULL)
+    {
+        fprintf(stderr, "malloc failed\n");
+        exit(1);
+    }
+    for (int i = 0; i < 100; i++)
+    {
+        text[i] = (char*)malloc(sizeof(char)*100);
+        if (text == NULL)
+        {
+            fprintf(stderr, "malloc failed\n");
+            exit(1);
+        }
+    }
+    int temp = 0;
+    while (fscanf(input_file,"%s",text[temp])!=-1)
+    {
+        temp++;
+    }
+    *line_cnt = temp;
+    if (line_cnt == 0)
+        exit(1);
+    return text;
 }
-char** parse_input()
-{
 
+char** reverse_text(char** text, int line_count)
+{
+    char** ret = (char**)malloc(sizeof(char*)*line_count);
+    if(ret == NULL) 
+    {
+        fprintf(stderr, "malloc failed\n");
+        exit(1);
+    }
+    for (int i = 0; i < line_count; i++) 
+    {
+        ret[i] = text[line_count - i - 1];
+    }
+    return ret;
 }
-void output()
+void output(FILE* file, char** text, int line_count)
 {
-
+    for (int i = 0; i < line_count; ++i) 
+    {
+        fprintf(file, "%s\n", text[i]);
+    }
 }
 
 int main(int argc,char *argv[])
@@ -73,10 +111,10 @@ int main(int argc,char *argv[])
     
     int line_cnt = 0;
     /*
-    char** reverse_text(char** text_array):return reversed text
     char** parse_input():return text_array
+    char** reverse_text(char** text_array):return reversed text
     void output():write to command line or file
     */
-    char** original_text = parse_input();
-
+    char** original_text = parse_input(input_file,&line_cnt);
+    output(output_file,reverse_text(original_text,line_cnt),line_cnt);
 }
